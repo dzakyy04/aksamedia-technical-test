@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone')->nullable();
             $table->uuid('division_id');
-            $table->string('position')->nullable();
             $table->foreign('division_id')->references('id')->on('divisions')->onDelete('cascade');
+            $table->string('position')->nullable();
             $table->timestamps();
         });
     }
