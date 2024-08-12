@@ -24,4 +24,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/employees', [EmployeeController::class, 'index']);
     Route::post('/employees', [EmployeeController::class, 'store']);
     Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 });

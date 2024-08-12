@@ -52,4 +52,21 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    public function logout(Request $request)
+    {
+        try {
+            Auth::guard('api')->logout();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logout successfully',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while logging out',
+            ], 500);
+        }
+    }
 }
