@@ -6,8 +6,6 @@ use Exception;
 use App\Models\Division;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\QueryException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DivisionController extends Controller
 {
@@ -39,11 +37,6 @@ class DivisionController extends Controller
                     'prev_page_url' => $divisions->previousPageUrl(),
                 ],
             ]);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Division not found',
-            ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',

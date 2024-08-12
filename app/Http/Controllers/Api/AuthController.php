@@ -39,7 +39,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Login successful',
+                'message' => 'Login successfully',
                 'data' => [
                     'token' => $token,
                     'admin' => $admin
@@ -48,10 +48,7 @@ class AuthController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'An error occurred during login',
-                'data' => [
-                    'error' => $e->getMessage()
-                ]
+                'message' => 'An unexpected error occurred while logging in',
             ], 500);
         }
     }
