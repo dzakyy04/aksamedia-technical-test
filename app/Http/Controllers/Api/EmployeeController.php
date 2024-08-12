@@ -6,7 +6,9 @@ use Exception;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeController extends Controller
 {
@@ -85,7 +87,7 @@ class EmployeeController extends Controller
         try {
             $image = $request->file('image');
             $extension = $image->getClientOriginalExtension();
-            $fileName = $request->name . '-' . time() . '.' . $extension;
+            $fileName = strtolower(str_replace(' ', '-', $request->name)) . '-' . time() . '.' . $extension;
 
             $imagePath = $image->storeAs('employees/images', $fileName, 'public');
 
@@ -104,7 +106,35 @@ class EmployeeController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to create employee: ' . $e->getMessage(),
+                'message' => 'An unexpected error occurred while creating employee data',
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $employee = Employee::findOrFail($id);
+
+            if ($employee->image) {
+                Storage::disk('public')->delete($employee->image);
+            }
+
+            $employee->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Employee deleted successfully',
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Employee not found',
+            ], 404);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while deleting employee data',
             ], 500);
         }
     }
