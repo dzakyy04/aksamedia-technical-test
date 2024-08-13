@@ -17,3 +17,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/storage/api-docs
+/resources/views/vendor/l5-swagger
