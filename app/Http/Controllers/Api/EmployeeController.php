@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EmployeeController extends Controller
@@ -73,7 +74,7 @@ class EmployeeController extends Controller
             'name' => 'required',
             'phone' => 'required',
             'division' => 'required|exists:divisions,id',
-            'position' => 'required|max:255',
+            'position' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -110,6 +111,68 @@ class EmployeeController extends Controller
             ], 500);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        if (empty($request->all())) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid Request',
+                'error' => 'Please use method spoofing for PUT requests by setting the request method to POST and including _method=PUT in the request body.',
+            ], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'image' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+            'name' => 'sometimes|required',
+            'phone' => 'sometimes|required',
+            'division' => 'sometimes|required|exists:divisions,id',
+            'position' => 'sometimes|required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $employee = Employee::findOrFail($id);
+
+            if ($request->hasFile('image')) {
+                if ($employee->image && Storage::disk('public')->exists($employee->image)) {
+                    Storage::disk('public')->delete($employee->image);
+                }
+
+                $image = $request->file('image');
+                $extension = $image->getClientOriginalExtension();
+                $fileName = strtolower(str_replace(' ', '-', $request->name ?? $employee->name)) . '-' . time() . '.' . $extension;
+                $imagePath = $image->storeAs('employees/images', $fileName, 'public');
+                $employee->image = $imagePath;
+            }
+
+            $employee->name = $request->input('name', $employee->name);
+            $employee->phone = $request->input('phone', $employee->phone);
+            $employee->division_id = $request->input('division', $employee->division_id);
+            $employee->position = $request->input('position', $employee->position);
+
+            $employee->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Employee updated successfully',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while updating employee data',
+            ], 500);
+        }
+    }
+
+
 
     public function destroy($id)
     {
