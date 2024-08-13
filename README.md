@@ -50,5 +50,5 @@ Start the local development server
 
     php artisan serve
 
-You can now access the server at [http://localhost:8000](http://localhost:8000) and the API documentation at [http://localhost:8000/documentation](http://localhost:8000/documentation)
+You can now access the server at [http://127.0.0.1:8000](http://127.0.0.1:8000) and the API documentation at [http://127.0.0.1:8000/api/documentation](http://127.0.0.1:8000/api/documentation)
 
