@@ -164,6 +164,11 @@ class EmployeeController extends Controller
                 'status' => 'success',
                 'message' => 'Employee updated successfully',
             ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Employee not found',
+            ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -171,8 +176,6 @@ class EmployeeController extends Controller
             ], 500);
         }
     }
-
-
 
     public function destroy($id)
     {
