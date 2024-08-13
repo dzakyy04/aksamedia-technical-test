@@ -9,10 +9,10 @@ use App\Http\Controllers\Controller;
 
 class ScoreController extends Controller
 {
-    public function getRTScore()
+    public function getRTScores()
     {
         try {
-            $rtScore = DB::select('
+            $rtScores = DB::select('
             SELECT 
                 nama,
                 nisn,
@@ -28,7 +28,7 @@ class ScoreController extends Controller
             ORDER BY nama
         ');
 
-            $formattedData = collect($rtScore)->map(function ($item) {
+            $formattedData = collect($rtScores)->map(function ($item) {
                 return [
                     'name' => $item->nama,
                     'nisn' => $item->nisn,
@@ -45,14 +45,62 @@ class ScoreController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'RT score retrieved successfully',
+                'message' => 'RT scores retrieved successfully',
                 'data' => $formattedData,
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'An unexpected error occurred while retrieving RT score data',
+                'message' => 'An unexpected error occurred while retrieving RT scores data',
                 'data' => null,
+            ], 500);
+        }
+    }
+
+    public function getSTScores()
+    {
+        try {
+            $stScores = DB::select('
+            SELECT 
+                nama,
+                nisn,
+                SUM(CASE WHEN pelajaran_id = 44 THEN skor * 41.67 ELSE 0 END) AS verbal,
+                SUM(CASE WHEN pelajaran_id = 45 THEN skor * 29.67 ELSE 0 END) AS kuantitatif,
+                SUM(CASE WHEN pelajaran_id = 46 THEN skor * 100 ELSE 0 END) AS penalaran,
+                SUM(CASE WHEN pelajaran_id = 47 THEN skor * 23.81 ELSE 0 END) AS figural
+            FROM nilai
+            WHERE materi_uji_id = 4
+            GROUP BY nama, nisn
+            ORDER BY 
+                (SUM(CASE WHEN pelajaran_id = 44 THEN skor * 41.67 ELSE 0 END) +
+                SUM(CASE WHEN pelajaran_id = 45 THEN skor * 29.67 ELSE 0 END) +
+                SUM(CASE WHEN pelajaran_id = 46 THEN skor * 100 ELSE 0 END) +
+                SUM(CASE WHEN pelajaran_id = 47 THEN skor * 23.81 ELSE 0 END)) DESC
+        ');
+
+            $formattedData = collect($stScores)->map(function ($item) {
+                return [
+                    'name' => $item->nama,
+                    'nisn' => $item->nisn,
+                    'listNilai' => [
+                        'figural' => (float)$item->figural,
+                        'kuantitatif' => (float)$item->kuantitatif,
+                        'penalaran' => (float)$item->penalaran,
+                        'verbal' => (float)$item->verbal,
+                    ],
+                    'total' => (float)($item->figural + $item->kuantitatif + $item->penalaran + $item->verbal),
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'ST scores retrieved successfully',
+                'data' => $formattedData,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An unexpected error occurred while retrieving ST scores data',
             ], 500);
         }
     }

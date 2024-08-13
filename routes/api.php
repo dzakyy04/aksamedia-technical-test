@@ -36,4 +36,5 @@ Route::middleware('auth:api')->group(function () {
 });
 
 // Bonus routes
-Route::get('/nilaiRT', [ScoreController::class, 'getRTScore']);
+Route::get('/nilaiRT', [ScoreController::class, 'getRTScores']);
+Route::get('/nilaiST', [ScoreController::class, 'getSTScores']);
