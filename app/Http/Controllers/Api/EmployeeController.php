@@ -31,7 +31,7 @@ class EmployeeController extends Controller
             $formattedEmployees = collect($employees->items())->map(function ($employee) {
                 return [
                     'id' => $employee->id,
-                    'image' => url($employee->image),
+                    'image' => url('storage/' . $employee->image),
                     'name' => $employee->name,
                     'phone' => $employee->phone,
                     'division' => [
